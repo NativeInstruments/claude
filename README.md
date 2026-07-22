@@ -17,7 +17,7 @@ From a local checkout:
 Or from remote by URL instead:
 
 ```
-/plugin marketplace add <git-url>
+/plugin marketplace add https://github.com/NativeInstruments/claude.git
 ```
 
 ## Install a plugin
