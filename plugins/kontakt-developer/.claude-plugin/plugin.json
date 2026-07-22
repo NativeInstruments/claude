@@ -1,0 +1,8 @@
+{
+  "name": "kontakt-developer",
+  "version": "0.1.0",
+  "description": "Skills for developing Kontakt instruments and tools",
+  "author": {
+    "name": "Native Instruments"
+  }
+}

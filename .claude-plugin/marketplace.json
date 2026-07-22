@@ -1,0 +1,13 @@
+{
+  "name": "native-instruments",
+  "owner": {
+    "name": "Native Instruments"
+  },
+  "plugins": [
+    {
+      "name": "kontakt-developer",
+      "source": "./plugins/kontakt-developer",
+      "description": "Skills for developing Kontakt instruments and tools"
+    }
+  ]
+}
