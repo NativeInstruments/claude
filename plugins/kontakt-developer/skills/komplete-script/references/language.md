@@ -182,7 +182,7 @@ var white = Color(0xFFFFFFFF)       // ok — bind, then chain
 var faded = white.opacity(0.5)
 ```
 
-This applies to property access too (`(Vec2(x: 1.0, y: 2.0)).x`), and to every type — `Color`, `Angle`, `Range`, your own classes.
+This applies to property access too (`(Vec2(x: 1.0, y: 2.0)).x`), and to every type — `Color`, `Angle`, `Range`, your own classes. Ordinary function and method calls chain fine (`make_color().opacity(0.5)`) — only constructor calls need the parentheses.
 
 ## Control Flow (imperative)
 
