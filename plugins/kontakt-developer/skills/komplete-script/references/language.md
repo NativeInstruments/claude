@@ -27,6 +27,22 @@ var x = 5 // line comment
 */
 ```
 
+## Naming Rules
+
+Case is **enforced by the compiler**, not a style convention:
+
+- **Symbols** — variables, properties, state, functions, methods, parameters, enum cases, module names — must **start with a lowercase letter**.
+- **Types** — classes, components, modifiers, enums, type aliases — must **start with an uppercase letter**.
+
+```kscript
+var title = ""          // ok
+var TITLE = ""          // error — symbol starts uppercase
+class Vec2 { }          // ok
+class vec2 { }          // error — type starts lowercase
+```
+
+Convention within those rules: `snake_case` for symbols, `PascalCase` for types.
+
 ## Variables
 
 Declare with `var`. A variable **must be initialized at declaration** and can be reassigned (same type only). There is no `let`/`const`.
@@ -154,6 +170,19 @@ var opt: String? = condition ? "value" : nil
 ```
 
 Assignment: `=`. It does not produce a value (no chained/expression assignment). There are no compound assignment operators documented (`+=` etc.) — write `x = x + 1`.
+
+### Chaining onto a constructor call
+
+A constructor call cannot be followed directly by `.` — wrap it in parentheses first (or bind it to a variable):
+
+```kscript
+Color(0xFFFFFFFF).opacity(0.5)      // error — no direct chaining onto a constructor
+(Color(0xFFFFFFFF)).opacity(0.5)    // ok — extra parentheses
+var white = Color(0xFFFFFFFF)       // ok — bind, then chain
+var faded = white.opacity(0.5)
+```
+
+This applies to property access too (`(Vec2(x: 1.0, y: 2.0)).x`), and to every type — `Color`, `Angle`, `Range`, your own classes.
 
 ## Control Flow (imperative)
 
@@ -317,6 +346,16 @@ class Counter {
 }
 ```
 
+### Member Order (enforced)
+
+Members must appear in this order — it is a language rule, not a style preference:
+
+1. properties (stored and computed)
+2. constructors
+3. methods
+
+A method declared before a property is a compile error.
+
 ### Properties
 
 - Stored property: `name: Type` or `name: Type = default`. Properties without defaults must be supplied at construction.
@@ -463,6 +502,38 @@ component Welcome {
 }
 
 export var main: Component = Welcome(text: "Hello!")
+```
+
+### Member Order (enforced)
+
+Components and modifiers require this order:
+
+1. `@property` / `@binding` declarations (may interleave with each other)
+2. constructors
+3. state and methods (may interleave with each other)
+4. **child component expressions — always last**
+
+The UI tree goes at the bottom of the body; a `@property` or method declared after a component expression is a compile error.
+
+```kscript
+component Card {
+    @property title: String     // 1. properties/bindings
+    @binding open: Bool
+
+    constructor(title: String, open: $<Bool>) : (   // 2. constructors
+        title: title,
+        open: open,
+    )
+
+    hovered: Bool = false       // 3. state / methods
+    toggle() {
+        self.open = not self.open
+    }
+
+    VStack {                    // 4. children — last
+        Text(self.title)
+    }
+}
 ```
 
 ### @property (parent → child, read-only)
@@ -657,6 +728,31 @@ export var main: Component = List(
     }
 )
 ```
+
+### No `var` inside templates or trailing blocks
+
+A `template (…) { … }` literal and a trailing `{ … }` children block hold **component expressions only** — `var` declarations are not allowed in them. Compute the value outside and pass it in (as a template parameter, a component `@property`, or component state):
+
+```kscript
+// error — var inside a trailing children block
+VStack {
+    var label = "Track \{index}"
+    Text(label)
+}
+
+// ok — compute outside, or inline the expression
+Text("Track \{index}")
+
+// ok — a template parameter carries the value in
+List(
+    data: names,
+    item: template (name) {
+        Text(name)
+    },
+)
+```
+
+Declarative `if`/`for` inside those blocks is fine — only variable declarations are rejected.
 
 ### Templates vs Functions (critical)
 
@@ -1033,3 +1129,7 @@ export var main: Component = ReverbSend()
 26. **KSP connections (e.g. `KSPKnob`) must be declared globally** — they are fixed at load time and don't belong inside components.
 27. **Higher (later) siblings block lower siblings' gestures entirely** — you cannot combine gestures across siblings.
 28. Float literals need digits on both sides of the dot (`0.5`, not `.5`; `1.0`, not `1.`).
+29. **Case is enforced**: symbols (variables, properties, functions, enum cases) must start lowercase; types (classes, components, modifiers, enums, aliases) must start uppercase. `var TITLE = ""` does not compile.
+30. **No direct chaining onto a constructor call** — `Color(0xFFFFFFFF).opacity(0.5)` is illegal; write `(Color(0xFFFFFFFF)).opacity(0.5)` or bind to a variable first.
+31. **Member order is enforced.** Classes: properties → constructors → methods. Components/modifiers: properties/bindings → constructors → state/methods → child components last.
+32. **No `var` inside templates or trailing `{ … }` children blocks** — those take component expressions only. Pass values in via template parameters, properties, or state.
