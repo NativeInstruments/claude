@@ -782,6 +782,19 @@ export var main: Component = Text("Hello") with {
 
 **Order matters**: modifiers apply top to bottom; each later modifier wraps the result of all previous ones. The same modifier type may be applied multiple times (e.g. `Background`, then `Padding`, then another `Background`).
 
+### `with` Applies to Any Component Expression
+
+A `with` block is not limited to constructor calls — it follows **any expression producing a component**, and takes the same modifier list in every case:
+
+```kscript
+self.children() with { Padding(8) }   // template invocation — per child, one shared modifier instance
+self.item(text) with { Padding(8) }   // parameterized template invocation
+self.highlight with { Padding(8) }    // Component-typed property or state
+self.slides[0] with { Padding(8) }    // element of a [Component]
+labelled(text: "x") with { … }        // function/method call returning Component
+(flag ? a : b) with { Padding(8) }    // parenthesized ternary
+```
+
 ### Custom Modifiers
 
 Declare with the `modifier` keyword. The modified component is available inside the body as the implicit variable **`child`**. Bodies may produce multiple siblings and use declarative `if`/`for`. Modifiers support `@property`, `@binding`, and state just like components.
@@ -1120,16 +1133,17 @@ export var main: Component = ReverbSend()
 17. **Multiple components in a body/`if`/`for` become direct siblings** in the parent container — no implicit wrapper.
 18. **Modifier order matters** (top-to-bottom wrapping), and one modifier instance applied to a multi-child component shares its state across all children.
 19. **Modifier bodies reference the wrapped component via the implicit `child` variable.**
-20. **UI code must be side-effect free** — re-evaluation order/count is unspecified; any value read in a reactive expression becomes a tracked dependency (even reads inside `print`).
-21. **Map lookups always return optionals; assigning `nil` deletes the key.** Force unwrap (`!`) on `nil` is a runtime crash.
-22. **Empty collection literals need type annotations**; empty map is `[:]`, not `{}` or `[]`.
-23. **Import paths resolve from the project root** (`komplete_scripts/`), never relative to the current file. Module filenames must be lowercase (letters, digits, underscores). Nested-namespace imports require `as` renames.
-24. **Block comments nest.**
-25. **`===` (identity) exists only for class instances**; `==` compares values.
-26. **KSP connections (e.g. `KSPKnob`) must be declared globally** — they are fixed at load time and don't belong inside components.
-27. **Higher (later) siblings block lower siblings' gestures entirely** — you cannot combine gestures across siblings.
-28. Float literals need digits on both sides of the dot (`0.5`, not `.5`; `1.0`, not `1.`).
-29. **Case is enforced**: symbols (variables, properties, functions, enum cases) must start lowercase; types (classes, components, modifiers, enums, aliases) must start uppercase. `var TITLE = ""` does not compile.
-30. **No direct chaining onto a constructor call** — `Color(0xFFFFFFFF).opacity(0.5)` is illegal; write `(Color(0xFFFFFFFF)).opacity(0.5)` or bind to a variable first.
-31. **Member order is enforced.** Classes: properties → constructors → methods. Components/modifiers: properties/bindings → constructors → state/methods → child components last.
-32. **No `var` inside templates or trailing `{ … }` children blocks** — those take component expressions only. Pass values in via template parameters, properties, or state.
+20. **`with` works on any component expression**, not just constructor calls — `self.children() with { … }`, `self.item(text) with { … }`, `self.some_component with { … }`, `self.items[0] with { … }`.
+21. **UI code must be side-effect free** — re-evaluation order/count is unspecified; any value read in a reactive expression becomes a tracked dependency (even reads inside `print`).
+22. **Map lookups always return optionals; assigning `nil` deletes the key.** Force unwrap (`!`) on `nil` is a runtime crash.
+23. **Empty collection literals need type annotations**; empty map is `[:]`, not `{}` or `[]`.
+24. **Import paths resolve from the project root** (`komplete_scripts/`), never relative to the current file. Module filenames must be lowercase (letters, digits, underscores). Nested-namespace imports require `as` renames.
+25. **Block comments nest.**
+26. **`===` (identity) exists only for class instances**; `==` compares values.
+27. **KSP connections (e.g. `KSPKnob`) must be declared globally** — they are fixed at load time and don't belong inside components.
+28. **Higher (later) siblings block lower siblings' gestures entirely** — you cannot combine gestures across siblings.
+29. Float literals need digits on both sides of the dot (`0.5`, not `.5`; `1.0`, not `1.`).
+30. **Case is enforced**: symbols (variables, properties, functions, enum cases) must start lowercase; types (classes, components, modifiers, enums, aliases) must start uppercase. `var TITLE = ""` does not compile.
+31. **No direct chaining onto a constructor call** — `Color(0xFFFFFFFF).opacity(0.5)` is illegal; write `(Color(0xFFFFFFFF)).opacity(0.5)` or bind to a variable first.
+32. **Member order is enforced.** Classes: properties → constructors → methods. Components/modifiers: properties/bindings → constructors → state/methods → child components last.
+33. **No `var` inside templates or trailing `{ … }` children blocks** — those take component expressions only. Pass values in via template parameters, properties, or state.
