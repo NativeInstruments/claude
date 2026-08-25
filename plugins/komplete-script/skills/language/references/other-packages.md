@@ -364,9 +364,9 @@ Constructor parameters:
 ```kscript
 import { Waveform } from audio_components
 
-// `sample` must be a concrete Sample obtained from the host — see the host's
-// own reference for how samples are loaded.
-export var main = Waveform(sample: host_supplied_sample)
+// `my_sample` stands in for a concrete Sample obtained from the host — the
+// loading function is host API, not part of `audio_components`.
+export var main = Waveform(sample: my_sample)
 ```
 
 ## interface Sample
