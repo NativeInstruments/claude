@@ -69,8 +69,8 @@ Beginner-friendly controls that bind to KSP controls via `control_id`. **Not bui
 user must download it manually and copy its folder into `Resources/komplete_scripts/`. Before
 using it, verify the `kontakt_controls/` folder exists next to `main.kscript` (existence check
 only — do not read the folder's source to learn the API). If missing, tell the user to
-download it from the Native Instruments homepage and copy it in. Import:
-`import * from kontakt_controls`.
+download https://storage.googleapis.com/ni-developer-platform/kontakt_controls.zip and copy
+the folder in. Import: `import * from kontakt_controls`.
 
 **API source of truth is `references/kontakt-controls.md`, not the installed folder.** Read
 the md for every control's API. Only fall back to reading the actual `kontakt_controls/`
