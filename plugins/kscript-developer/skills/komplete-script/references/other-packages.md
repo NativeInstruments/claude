@@ -53,7 +53,7 @@ var arctangent = atan(1.5) // arctangent equals 0.98279372324733
 
 #### atan2(y: Float, x: Float) -> (Float)
 
-Arc tangent of y / x using argument signs for quadrant. Since Kontakt 8.10.
+Arc tangent of y / x using argument signs for quadrant. Since kscript 1.5.
 
 ```kscript
 var arctangent2 = atan2(y: 7, x: 0) // arctangent2 equals 1.5708
@@ -139,7 +139,7 @@ var radical = sqrt(4.0) // radical equals 2.0
 
 # URI
 
-Kontakt 8.12.
+kscript 1.9.
 
 ```kscript
 import * from uri
@@ -233,7 +233,7 @@ export var main = Main()
 
 # Path
 
-Kontakt 8.12. Package renamed `fs` → `path`.
+kscript 1.9. Package renamed `fs` → `path`.
 
 ```kscript
 import * from path
@@ -293,7 +293,7 @@ Properties (all get-only; component getters return empty path if absent):
 - `extension: Path` — file extension including leading dot (e.g. `.wav`).
 - `has_parent`, `has_root_name`, `has_root`, `has_filename`, `has_stem`, `has_extension`, `is_absolute`, `is_relative`, `is_empty`: Bool.
 
-Methods (`appending` is overloaded, replacing the old `appending_all`/`appending_path` — Kontakt 8.12):
+Methods (`appending` is overloaded, replacing the old `appending_all`/`appending_path` — kscript 1.9):
 - `appending(_ path: String) -> (Path)` — append string as new path component.
 - `appending(_ other: Path) -> (Path)` — append `other`'s components.
 - `appending(_ segments: [Path]) -> (Path)` — append all segments from the array in order.
@@ -317,7 +317,7 @@ Parameter: `_ uri: URI` (required).
 
 # Audio Components
 
-Kontakt 8.12.
+kscript 1.9.
 
 ```kscript
 import * from audio_components
@@ -325,7 +325,7 @@ import * from audio_components
 
 ## class VisibleRange
 
-Half-open range of samples within an audio sample: [begin, end). Floating point for sub-sample precision. Renamed from `SampleRange` in Kontakt 8.12.
+Half-open range of samples within an audio sample: [begin, end). Floating point for sub-sample precision. Renamed from `SampleRange` in kscript 1.9.
 
 ```kscript
 export class VisibleRange {
@@ -363,15 +363,15 @@ Constructor parameters:
 
 ```kscript
 import { Waveform } from audio_components
-import { load_sample, library_path } from kontakt
 
-export var main = Waveform(sample: load_sample(library_path.appending("Samples").appending("my_sample.wav"))!,
-)
+// `my_sample` stands in for a concrete Sample obtained from the host — the
+// loading function is host API, not part of `audio_components`.
+export var main = Waveform(sample: my_sample)
 ```
 
 ## interface Sample
 
-Audio sample displayable by `Waveform`. No constructor — use `kontakt.Sample` (concrete implementation), obtained via functions such as `load_sample`.
+Audio sample displayable by `Waveform`. This is an **interface only** — it has no constructor. The concrete implementation and the function that loads it are supplied by the host (in Kontakt: `kontakt.Sample` via `load_sample` — see that plugin's `kontakt-package.md`).
 
 ```kscript
 export interface Sample {
