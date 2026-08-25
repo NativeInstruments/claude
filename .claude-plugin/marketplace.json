@@ -5,6 +5,11 @@
   },
   "plugins": [
     {
+      "name": "kscript-developer",
+      "source": "./plugins/kscript-developer",
+      "description": "Skills for developing with Komplete Script (kscript)"
+    },
+    {
       "name": "kontakt-developer",
       "source": "./plugins/kontakt-developer",
       "description": "Skills for developing Kontakt instruments and tools"

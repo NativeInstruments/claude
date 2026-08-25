@@ -4,7 +4,11 @@ Claude plugins provided by Native Instruments.
 
 ## Plugins
 
-- **kontakt-developer** — Contains skills for developing Kontakt instruments and tools
+- **kscript-developer** — The Komplete Script (kscript) language: syntax, standard library,
+  `ui` package. Host-independent.
+- **kontakt-developer** — Kontakt instruments and tools: KSP binding, the `kontakt` package,
+  Kontakt Controls, the Kontakt MCP dev loop. **Builds on `kscript-developer`** — install both
+  for Kontakt UI work.
 
 ## Install the marketplace
 
@@ -23,6 +27,7 @@ Or from remote by URL instead:
 ## Install a plugin
 
 ```
+/plugin install kscript-developer@native-instruments
 /plugin install kontakt-developer@native-instruments
 ```
 
