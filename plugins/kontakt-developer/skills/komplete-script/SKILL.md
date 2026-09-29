@@ -102,15 +102,11 @@ Kontakt reload the instrument automatically** — no manual reload step. Log out
 errors, warnings, `print(...)` output) is fetched via MCP. Depending on whether you're editing
 an instrument or a tool, use `instrument_get_kscript_messages` or `tool_get_kscript_messages`.
 
-Tools (load schemas via ToolSearch first if deferred):
-- `list_instruments` — instruments loaded in the rack. Call once at session start to get the
-  instrument id. Usually exactly one instrument during development; if several, ask the user
-  which one.
-- `list_tools` — tools loaded in the rack
-- `instrument_get_kscript_messages` — errors, warnings and `print` output for an instrument.
-  Call after every edit.
-- `tool_get_kscript_messages` — errors, warnings and `print` output for a tool. Call after
-  every edit.
+Use the `kontakt` MCP server's tools whenever it is available — the server is the source of
+truth for what it offers, so read its tool list and descriptions rather than assuming a fixed
+set. Load the schemas via ToolSearch first if they are deferred. Look up the id of the
+instrument or tool you are editing once at session start; usually exactly one is loaded
+during development — if several, ask the user which one.
 
 If the server is not registered, run `/setup-mcp` (see the plugin README).
 
