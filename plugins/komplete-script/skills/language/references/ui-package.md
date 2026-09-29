@@ -113,14 +113,14 @@ export var main = HStack {
 
 ### Text
 `Text(_ text: String, color: Color? = nil, size: Int? = nil, font_family: FontFamilyName? = nil, italic: Bool = false, font_weight: Int = font_weights.normal, letter_spacing: Float? = nil, line_height: Float? = nil, line_limit: Int? = nil, multiline_alignment: HorizontalAlignment? = nil)`
-Displays text. `nil` params inherit from environment; root env defaults: color black, size 16, font Roboto, letter spacing 0, line height multiplier 1, line limit max_integer, multiline alignment center. `letter_spacing` (px, can be negative) and `line_height` (multiplier, e.g. 1.5 = 150%) introduced in Kontakt 8.11. Layout: exact space needed; wraps vertically if too narrow; elides as last resort; never uses more space than needed.
+Displays text. `nil` params inherit from environment; root env defaults: color black, size 16, font Roboto, letter spacing 0, line height multiplier 1, line limit max_integer, multiline alignment center. `letter_spacing` (px, can be negative) and `line_height` (multiplier, e.g. 1.5 = 150%) introduced in kscript 1.8. Layout: exact space needed; wraps vertically if too narrow; elides as last resort; never uses more space than needed.
 ```kscript
 import { Text } from ui
 export var main = Text("Hello, world!")
 ```
 
 ### TextInput
-Single line of editable text (introduced Kontakt 8.4). Only offers text, cursor, selection — style it with other modifiers/components. Tapping in acquires keyboard focus, tapping outside removes it. Layout: fills available horizontal space; fixed height from font family & size.
+Single line of editable text (introduced in kscript 1.1). Only offers text, cursor, selection — style it with other modifiers/components. Tapping in acquires keyboard focus, tapping outside removes it. Layout: fills available horizontal space; fixed height from font family & size.
 
 Constructor with binding (state reflects edits immediately):
 ```kscript
@@ -135,7 +135,7 @@ TextInput(
     italic: Bool = false,
     font_weight: Int = font_weights.normal,
     alignment: HorizontalAlignment = HorizontalAlignment.left,
-    letter_spacing: Float? = nil,      // env default: 0; Kontakt 8.11
+    letter_spacing: Float? = nil,      // env default: 0; kscript 1.8
     on_focus_changed: (Bool) -> () = fun (focused) {},
     on_editing_finished: () -> () = fun () {},   // focus lost or enter/return
     on_submitted: () -> () = fun () {},          // enter/return
@@ -331,7 +331,7 @@ export var main: Component = HoverText()
 
 ### LetterSpacing
 `LetterSpacing(_ spacing: Float?)`
-Overrides letter spacing (px, can be negative) inherited by descendent text; `nil` inherits. Introduced in Kontakt 8.11.
+Overrides letter spacing (px, can be negative) inherited by descendent text; `nil` inherits. Introduced in kscript 1.8.
 ```kscript
 import { LetterSpacing, Text } from ui
 export var main = Text("Wide") with { LetterSpacing(3.0) }
@@ -339,7 +339,7 @@ export var main = Text("Wide") with { LetterSpacing(3.0) }
 
 ### LineHeight
 `LineHeight(_ factor: Float?)`
-Overrides line height multiplier for descendent Text (e.g. 1.5 = 150% of natural line height); `nil` inherits. Introduced in Kontakt 8.11.
+Overrides line height multiplier for descendent Text (e.g. 1.5 = 150% of natural line height); `nil` inherits. Introduced in kscript 1.8.
 ```kscript
 import { LineHeight, Text } from ui
 export var main = Text("Two\nlines") with { LineHeight(1.5) }
@@ -411,7 +411,7 @@ Popover(
 )
 ```
 ```kscript
-// Introduced with Kontakt 8.5.1
+// Introduced with kscript 1.3
 Popover(visible: Bool, ...)  // never auto-closes; mouse events pass through background
 ```
 If the popover doesn't fit in `direction` it is mirrored, then repositioned to fit the app frame; leading/trailing alignment flips if it doesn't fit. Popover content has the size of the entire scene available; no layout effect on the anchor.
