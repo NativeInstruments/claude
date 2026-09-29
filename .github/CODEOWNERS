@@ -1,3 +1,4 @@
 # Code owners. See https://docs.github.com/articles/about-code-owners
 
-/plugins/kontakt-developer/ @ni-mgotsch
+/plugins/kontakt-developer/ @ni-mgotsch @ni-acasapu
+/plugins/komplete-script/ @ni-mgotsch @ni-acasapu
