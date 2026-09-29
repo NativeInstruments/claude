@@ -10,6 +10,18 @@ Claude Code plugin for developing Kontakt instruments and tools.
 
 See the [marketplace README](../../README.md) for adding the marketplace first.
 
+## Prerequisite
+
+This plugin covers the **Kontakt layer** only. The kscript language itself lives in
+[`komplete-script`](../komplete-script/README.md) — install it too:
+
+```
+/plugin install komplete-script@native-instruments
+```
+
+Without it this plugin's `komplete-script` skill has no language reference to load and will tell
+you to install it rather than writing kscript.
+
 ## Commands
 
 ### `/setup-mcp [port]`
@@ -28,10 +40,12 @@ Skills load automatically when relevant; no command needed.
 
 ### `komplete-script`
 
-Develop Kontakt instrument UIs and tools with **kscript** (Komplete UI) — a
-proprietary declarative UI language that is **not in the model's training data**.
-The skill bundles the full language reference and loads it on demand before any
-kscript is written.
+The Kontakt-specific layer of Komplete UI: KSP control binding, the built-in `kontakt`
+package, the optional Kontakt Controls package, resource-container layout,
+`kontaktTargetVersion` and its mapping to a kscript language version, and the Kontakt MCP
+dev loop.
 
-Triggers when you build, edit, or debug a Kontakt instrument UI, work with
-`.kscript` files, or mention Komplete UI / kscript / Kontakt Controls / KSP.
+Triggers when you build, edit or debug a Kontakt instrument UI, work on an `.nki` or its
+`komplete_scripts` folder, or mention KSP / Kontakt Controls.
+
+It loads `komplete-script:language` first for the language itself.

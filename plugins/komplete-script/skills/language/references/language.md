@@ -2,9 +2,9 @@
 
 # Komplete Script (kscript) Language Reference
 
-Komplete Script is the language for building Kontakt instrument UIs and their business logic. It is **type-safe and statically typed**. Business logic is written imperatively; the UI is **declarative and reactive** — you describe what the UI looks like based on state, and the runtime keeps it in sync automatically. It works alongside KSP (Kontakt Script Processor), which handles real-time MIDI/audio; Komplete Script sits on top.
+Komplete Script is the language for building Komplete UI interfaces and their business logic. It is **type-safe and statically typed**. Business logic is written imperatively; the UI is **declarative and reactive** — you describe what the UI looks like based on state, and the runtime keeps it in sync automatically. The language itself is host-independent; a host embeds it and supplies the real-time audio/MIDI layer underneath.
 
-Files use the `.kscript` extension. Each file is a **module**. The entry point of an instrument is an exported `main` variable of type `Component`:
+Files use the `.kscript` extension. Each file is a **module**. The entry point of a Komplete Script program is the main module's exported `main` variable of type `Component`:
 
 ```kscript
 import { Text } from ui
@@ -12,7 +12,7 @@ import { Text } from ui
 export var main: Component = Text("Hello, world!")
 ```
 
-`print(...)` is always available without import (output goes to Creator Tools).
+`print(...)` is always available without import (output goes to the host's log channel).
 
 ## Comments
 
@@ -411,7 +411,7 @@ class BoundingBox {
 - Multiple constructors are allowed if their parameter signatures differ.
 - Constructor parameters follow function parameter rules (labels, `_`, defaults).
 
-### Method Overloading (Kontakt 8.12)
+### Method Overloading (kscript 1.9)
 
 A class can define multiple methods with the same name, as long as their parameters differ — in number, in types, or in argument labels. The compiler selects the matching overload based on the arguments at the call site:
 
@@ -439,7 +439,7 @@ Methods that differ only in their return type are not valid overloads. Overloadi
 
 Interpolating an instance prints its stored properties: `Vec2(x: 3.0, y: 4.0)` (computed properties excluded). Define `to_string() -> (String)` to customize.
 
-### Subscript Operator (Kontakt 8.11)
+### Subscript Operator (kscript 1.8)
 
 Define a method named `at` with exactly one parameter to enable `obj[expr]` reads; define `assign` with exactly two parameters (value first, then subscript) and no return value to enable `obj[expr] = value`. Both are also callable directly as normal methods.
 
@@ -695,7 +695,7 @@ A component body may produce multiple sibling components (directly, or via decla
 
 ### Exporting
 
-`export component Name { … }` exports a component. The instrument entry point is `export var main: Component = SomeComponent()`.
+`export component Name { … }` exports a component. The program entry point is `export var main: Component = SomeComponent()`.
 
 ## Templates
 
@@ -874,11 +874,11 @@ import { controls.knob.Knob as Knob } from my_module
 
 ### Directory Structure
 
-Modules may live in subdirectories; import paths are dot-separated and **always resolved from the project root** (the `komplete_scripts` directory), never relative to the importing file:
+Modules may live in subdirectories; import paths are dot-separated and **always resolved from the project root** (the host's script directory — `komplete_scripts/` in Kontakt), never relative to the importing file:
 
 ```kscript
 import * from components.tabbar
-import * from kontakt_components.base.button_base
+import * from shared.base.button_base
 ```
 
 ### Folder Modules
@@ -937,7 +937,7 @@ export component Checkbox {
 ### Reactivity Pitfalls
 
 1. **`var` in components does not work** — a component reading a global `var` in an expression will never update when the `var` changes. Use component state or a class property instead.
-2. **UI code must be side-effect free.** The order and count of re-evaluations is NOT guaranteed and may change between Kontakt versions. Never mutate anything (including globals) inside computed state/properties.
+2. **UI code must be side-effect free.** The order and count of re-evaluations is NOT guaranteed and may change between language versions. Never mutate anything (including globals) inside computed state/properties.
 3. **Never create components from functions** (`(Args) -> (Component)` properties or method calls in the body) — the component is recreated whenever any argument changes. Use `Template(…)` instead.
 
 ## Layout Fundamentals
@@ -1058,46 +1058,6 @@ With a tap and a drag on the same component: a pointer-down triggers the tap's `
 
 `DragGesture(minimum_distance: 0, …)` normally starts on pointer-down, **except** when a higher-priority tap gesture exists — then the drag starts on first movement so the tap can still fire. If the zero-threshold drag is listed first (higher priority), the tap never triggers.
 
-## Kontakt Integration Pattern
-
-Connect to KSP controls via the `kontakt` package. KSP connections are fixed at load time, so declare them **globally**, not inside a component:
-
-```kscript
-import { VStack, Text, Arc, DragGesture, Padding } from ui
-import { KSPKnob } from kontakt
-
-var reverb_knob = KSPKnob(id: "reverb")   // connects to KSP ui_knob "reverb"
-
-component ReverbSend {
-    accumulated_delta: Float = 0.0        // carries sub-integer drag remainder
-
-    VStack(spacing: 4) {
-        Arc(
-            color: Color(0xFF000000),
-            start_angle: Angle(degrees: 135),
-            angle: Angle(degrees: reverb_knob.normalized_value * 270),
-        ) with {
-            DragGesture(fun (event) {
-                var dy = event.delta.y / event.frame.height
-                self.accumulated_delta = self.accumulated_delta - dy * (reverb_knob.max - reverb_knob.min)
-                var steps = self.accumulated_delta.to_int()
-                if steps != 0 {
-                    reverb_knob.value = (reverb_knob.value + steps).clamped(min: reverb_knob.min, max: reverb_knob.max)
-                    self.accumulated_delta = self.accumulated_delta - steps
-                }
-            })
-        }
-        Text(reverb_knob.label)       // reactive: updates with KSP label
-        Text("\{reverb_knob.value}")  // reactive: updates with KSP value
-    } with {
-        Padding(16)
-    }
-}
-
-export var main: Component = ReverbSend()
-```
-
-`KSPKnob` exposes reactive `value` (Int), `min`, `max`, `normalized_value` (Float 0.0–1.0), and `label`. The `kontakt controls` package provides ready-made `Knob`/`Slider` components wrapping this pattern. Colors are constructed as `Color(0xAARRGGBB)` (e.g. `Color(0xFFFF0000)` opaque red).
 
 ## Gotchas (differences from mainstream languages)
 
@@ -1123,13 +1083,12 @@ export var main: Component = ReverbSend()
 20. **UI code must be side-effect free** — re-evaluation order/count is unspecified; any value read in a reactive expression becomes a tracked dependency (even reads inside `print`).
 21. **Map lookups always return optionals; assigning `nil` deletes the key.** Force unwrap (`!`) on `nil` is a runtime crash.
 22. **Empty collection literals need type annotations**; empty map is `[:]`, not `{}` or `[]`.
-23. **Import paths resolve from the project root** (`komplete_scripts/`), never relative to the current file. Module filenames must be lowercase (letters, digits, underscores). Nested-namespace imports require `as` renames.
+23. **Import paths resolve from the project root** (the host's script directory), never relative to the current file. Module filenames must be lowercase (letters, digits, underscores). Nested-namespace imports require `as` renames.
 24. **Block comments nest.**
 25. **`===` (identity) exists only for class instances**; `==` compares values.
-26. **KSP connections (e.g. `KSPKnob`) must be declared globally** — they are fixed at load time and don't belong inside components.
-27. **Higher (later) siblings block lower siblings' gestures entirely** — you cannot combine gestures across siblings.
-28. Float literals need digits on both sides of the dot (`0.5`, not `.5`; `1.0`, not `1.`).
-29. **Case is enforced**: symbols (variables, properties, functions, enum cases) must start lowercase; types (classes, components, modifiers, enums, aliases) must start uppercase. `var TITLE = ""` does not compile.
-30. **No direct chaining onto a constructor call** — `Color(0xFFFFFFFF).opacity(0.5)` is illegal; write `(Color(0xFFFFFFFF)).opacity(0.5)` or bind to a variable first.
-31. **Member order is enforced.** Classes: properties → constructors → methods. Components/modifiers: properties/bindings → constructors → state/methods → child components last.
-32. **No `var` inside templates or trailing `{ … }` children blocks** — those take component expressions only. Pass values in via template parameters, properties, or state.
+26. **Higher (later) siblings block lower siblings' gestures entirely** — you cannot combine gestures across siblings.
+27. Float literals need digits on both sides of the dot (`0.5`, not `.5`; `1.0`, not `1.`).
+28. **Case is enforced**: symbols (variables, properties, functions, enum cases) must start lowercase; types (classes, components, modifiers, enums, aliases) must start uppercase. `var TITLE = ""` does not compile.
+29. **No direct chaining onto a constructor call** — `Color(0xFFFFFFFF).opacity(0.5)` is illegal; write `(Color(0xFFFFFFFF)).opacity(0.5)` or bind to a variable first.
+30. **Member order is enforced.** Classes: properties → constructors → methods. Components/modifiers: properties/bindings → constructors → state/methods → child components last.
+31. **No `var` inside templates or trailing `{ … }` children blocks** — those take component expressions only. Pass values in via template parameters, properties, or state.

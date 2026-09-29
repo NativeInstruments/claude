@@ -8,10 +8,10 @@
 fun print(_ message: String) -> ()
 ```
 
-Prints a debug message (can be read from MCP).
+Prints a debug message (readable through the host's message channel).
 
 ```kscript
-print("Hello, KSP console!")
+print("Hello, world!")
 ```
 
 ## Warning
@@ -20,7 +20,7 @@ print("Hello, KSP console!")
 fun warning(_ message: String) -> ()
 ```
 
-Prints a warning message (can be read from MCP).
+Prints a warning message (readable through the host's message channel).
 
 ```kscript
 warning("Be careful")
@@ -32,7 +32,7 @@ warning("Be careful")
 fun error(_ message: String) -> ()
 ```
 
-Aborts the current call stack and prints an error message to Creator Tools. Code after `error()` in the aborted stack is not reached.
+Aborts the current call stack and prints an error message to the host's log channel. Code after `error()` in the aborted stack is not reached.
 
 ```kscript
 if amount > balance {
@@ -81,7 +81,7 @@ print("\{value.formatted(digits: 2)}") // Prints "3.14"
 A collection of unicode characters. All strings are expected to be UTF-8 encoded.
 
 - Compare with `==` / `!=`.
-- Escape sequences: `\n`, `\r` (since 8.9), `\\`, `\"`, `\u{030A}` (unicode codepoint, hex), `\{<expr>}` (interpolation).
+- Escape sequences: `\n`, `\r` (kscript 1.5), `\\`, `\"`, `\u{030A}` (unicode codepoint, hex), `\{<expr>}` (interpolation).
 - Combining codepoints (e.g. `\u{030A}`) merge with the leading character and do not count as separate characters for `length`.
 
 Properties:
@@ -139,7 +139,7 @@ Properties:
 Methods:
 - `all_satisfy(_ predicate: (Element) -> (Bool)) -> (Bool)` — returns `true` on an empty array.
 - `append(_ element: Element)` — appends a single element.
-- `append(_ other: [Element])` — appends all elements from another array (Kontakt 8.12; replaces `append_all`, removed in 8.12).
+- `append(_ other: [Element])` — appends all elements from another array (kscript 1.9; replaces `append_all`, removed in 1.9).
 - `clear()`
 - `contains(_ el: Element) -> (Bool)` — requires `Element` supports `==`.
 - `copy() -> ([Element])`
@@ -171,7 +171,7 @@ Collection of key-value pairs: `[Key: Value]`.
 - Add/update: `map[key] = value`. Remove: `map[key] = nil` (removing a non-existing key is a no-op).
 - Iterable with `for key, value in map { ... }` and interpolatable into strings.
 - Gotcha: iteration and print order are **non-deterministic**.
-- Supported key types: `Int`, `String`, `Float`, `Bool`, enumerations (since 8.5).
+- Supported key types: `Int`, `String`, `Float`, `Bool`, enumerations (kscript 1.2).
 
 ```kscript
 var phone_book: [String: String] = ["Malcom": "012345", "Jane": "789078"]
