@@ -18,9 +18,10 @@ version. Use the mapping below to translate between the two.
 | 8.9.0   | 1.5     |
 | 8.11.0  | 1.8     |
 | 8.12.0  | 1.9     |
+| 8.14.0  | 1.10    |
 
 **A Kontakt release not listed inherits the kscript version of the nearest listed release
-below it.** So 8.1, 8.2, 8.2.1 and 8.3 → 1.0; 8.6, 8.7 and 8.8 → 1.3; 8.10 → 1.5. kscript
+below it.** So 8.1, 8.2, 8.2.1 and 8.3 → 1.0; 8.6, 8.7 and 8.8 → 1.3; 8.10 → 1.5; 8.13 → 1.9. kscript
 1.4, 1.6 and 1.7 were never shipped in a public Kontakt release.
 
 ## Determining the ceiling
@@ -49,3 +50,4 @@ Language, stdlib and `ui` changes are **not** listed here — see
 | 8.4 | `text` property on `KSPButton`/`KSPKnob`/`KSPSwitch`/`KSPValueEdit`; `KSPTextEdit` `text` setter |
 | 8.8 | `KSPMenu.entries`; `Help` modifier (Info Pane help text, `info_hints.json`) |
 | 8.12 | `kontakt` module gains `Instrument`/`instrument`, `Group`, `GroupList`, `GroupListIterator`, `Zone`, `ZoneList`, `ZoneListIterator`, `Sample`, `load_sample`, `library_path` |
+| 8.14 | Kontakt Controls 0.3.0 adopts the kscript 1.10 sprite API (`row`/`row_count`) and **requires `kontaktTargetVersion` ≥ 8.14**; older targets need Kontakt Controls 0.2.x |

@@ -3,6 +3,8 @@
 
 Ready-made UI controls that connect to KSP ui controls via `control_id`. **Not included by default**: download the package manually (https://storage.googleapis.com/ni-developer-platform/kontakt_controls.zip) and copy its folder into the instrument's `Resources/komplete_scripts/` folder, then:
 
+**Version must match the target:** Kontakt Controls 0.3.0+ uses the kscript 1.10 sprite API and requires `kontaktTargetVersion` ≥ 8.14; for older targets use 0.2.x (which fails to compile on 8.14 with `no such parameter with name 'frame'`). The installed version is listed in the package's `README.md`.
+
 Components: `Slider`, `Knob`, `XYPad`, `Stepper`, `Switch`, `ToggleButton`. Only a small set of common controls is covered; it is extended over time.
 
 ## Slider (KSP `ui_slider`)
@@ -402,7 +404,7 @@ export class EdgeInsets {
 
 ### ImageAsset
 
-Image with metadata for controls. Supports sprites (`frame_count`) and nine-patch (`fixed_*` borders).
+Image with metadata for controls. Supports sprites (`frame_count`, frames stacked vertically) and nine-patch (`fixed_*` borders). `frame_count` is unchanged in 0.3.0 — it maps onto the `row_count` of the underlying `Image`/`NinePatchImage`.
 
 ```kscript
 import { ImageAsset } from kontakt_controls
