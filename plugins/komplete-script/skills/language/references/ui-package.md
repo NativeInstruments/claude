@@ -76,16 +76,22 @@ export var main = HStack(spacing: 10) {
 ```
 
 ### Image
-`Image(_ path: String, frame: Int = 0, frame_count: Int = 1, resizable: Bool = false)`
-Displays an image or sprite (path relative to main file); `frame`/`frame_count` select sprite frames; `resizable` allows stretching into available area (does not preserve aspect ratio). Formats: PNG, JPEG, WEBP, SVG (static SVG 1.2 Tiny), TIFF. High-DPI raster variants auto-detected via `@2x` postfix (e.g. `myimage@2x.png`). Layout: logical image size unless resizable.
+- kscript ≥ 1.10: `Image(_ path: String, row: Int = 0, row_count: Int = 1, column: Int = 0, column_count: Int = 1, resizable: Bool = false)`
+- kscript < 1.10: `Image(_ path: String, frame: Int = 0, frame_count: Int = 1, resizable: Bool = false)`
+
+The version decides which constructor exists — `frame`/`frame_count` are **gone** in 1.10, `row`/`column` don't exist before it. Displays an image or sprite (path relative to main file). Sprite sheets: the image is an even grid of `row_count` × `column_count` frames; `row` (from top) and `column` (from left), both 0-based, select the displayed frame, which must lie inside the grid (otherwise a runtime error). The component has the logical size of one frame. Pre-1.10 `frame`/`frame_count` = vertical-only sprite (same as `row`/`row_count`). `resizable` allows stretching into available area (does not preserve aspect ratio). Formats: PNG, JPEG, WEBP, SVG (static SVG 1.2 Tiny), TIFF. High-DPI raster variants auto-detected via `@2x` postfix (e.g. `myimage@2x.png`). Layout: logical image size unless resizable.
 ```kscript
 import { Image } from ui
 export var main = Image("my_background.png")
+// kscript 1.10 sprite sheet: 2 rows × 3 columns, show second row, third column
+var sprite = Image("my_sprite_sheet.png", row: 1, row_count: 2, column: 2, column_count: 3)
 ```
 
 ### NinePatchImage
-`NinePatchImage(_ path: String, frame: Int = 0, frame_count: Int = 1, fixed_left: Float = 0, fixed_right: Float = 0, fixed_top: Float = 0, fixed_bottom: Float = 0)`
-Image with fixed corner regions and stretchable edges/center (corners scale by aspect ratio, top/bottom edges stretch horizontally, left/right edges vertically, center both). Same file formats as Image. Layout: always stretches into available area.
+- kscript ≥ 1.10: `NinePatchImage(_ path: String, row: Int = 0, row_count: Int = 1, column: Int = 0, column_count: Int = 1, fixed_left: Float = 0, fixed_right: Float = 0, fixed_top: Float = 0, fixed_bottom: Float = 0)`
+- kscript < 1.10: `NinePatchImage(_ path: String, frame: Int = 0, frame_count: Int = 1, fixed_left: Float = 0, fixed_right: Float = 0, fixed_top: Float = 0, fixed_bottom: Float = 0)`
+
+Sprite parameters behave as for `Image`; the fixed borders apply to each frame. Image with fixed corner regions and stretchable edges/center (corners scale by aspect ratio, top/bottom edges stretch horizontally, left/right edges vertically, center both). Same file formats as Image. Layout: always stretches into available area.
 ```kscript
 import { NinePatchImage } from ui
 export var main = NinePatchImage("my_nine_patch.png", fixed_left: 4, fixed_right: 4, fixed_top: 4, fixed_bottom: 4)
@@ -549,8 +555,8 @@ export var main = Text("Hello, world!", font_weight: font_weights.bold)
 ## Functions
 
 ### load_font
-`fun load_font(_ paths: [String]) -> (FontFamily)`
-Loads font files (paths relative to the main file); files should be of the same family.
+`fun load_font(_ paths: [String]) -> (FontFamilyName)`
+Loads font files (paths relative to the main file); files must be of the same family. **Windows known issue:** some weights are separate families there (e.g. `Roboto-Medium.ttf` is family `Roboto Medium`, not `Roboto`), so mixing them in one call fails. Always group one `load_font` call per weight with its bold/italic variants (Regular/Bold/Italic/BoldItalic; Medium/MediumItalic; Black/BlackItalic) — this works on all platforms.
 ```kscript
 import { Text, load_font } from ui
 var my_font = load_font([
