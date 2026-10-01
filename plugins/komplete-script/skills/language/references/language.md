@@ -32,7 +32,7 @@ var x = 5 // line comment
 Case is **enforced by the compiler**, not a style convention:
 
 - **Symbols** — variables, properties, state, functions, methods, parameters, enum cases, module names — must **start with a lowercase letter**.
-- **Types** — classes, components, modifiers, enums, type aliases — must **start with an uppercase letter**.
+- **Types** — classes, components, modifiers, enums, type aliases, generic type parameters — must **start with an uppercase letter**.
 
 ```kscript
 var title = ""          // ok
@@ -435,6 +435,8 @@ playlist.add(["Verse", "Chorus"]) // calls add(_ titles: [String])
 
 Methods that differ only in their return type are not valid overloads. Overloading is only supported for methods — free functions cannot be overloaded.
 
+**Resolution (kscript 1.10):** if the arguments match several overloads, the one needing the fewest implicit conversions wins (e.g. `format(5)` picks `format(_ value: Int)` over `format(_ value: Float)`). A tie in the number of conversions (e.g. an `Int` argument for overloads taking `Float` and `Int?`) is an `ambiguous call` error. Before 1.10, any call matching more than one overload was ambiguous.
+
 ### String Interpolation of Instances
 
 Interpolating an instance prints its stored properties: `Vec2(x: 3.0, y: 4.0)` (computed properties excluded). Define `to_string() -> (String)` to customize.
@@ -808,6 +810,72 @@ Exportable: `export modifier Name { … }`.
 
 When applied to a component that yields multiple children, the modifier is applied **separately to each child**, but it is the **same modifier instance** for all — modifier state is shared across every wrapped child (e.g. a Highlight modifier's `active` state toggles all children's backgrounds together).
 
+## Generics (kscript 1.10)
+
+Classes, components and modifiers can declare type parameters in angle brackets after the name. Type parameters are types, so they must start uppercase.
+
+```kscript
+class Box<T> {
+    value: T
+}
+
+class Pair<First, Second> {
+    first: First
+    second: Second
+}
+
+var box = Box<Int>(value: 5)                               // type arguments are mandatory
+var pair = Pair<String, Float>(first: "Gain", second: 0.5)
+var other: Box<Int> = box                                  // also in annotations; bare `Box` is invalid
+```
+
+- Type arguments are **always explicit** — at construction and in type annotations. They are never deduced from constructor arguments.
+- Inside the declaration a type parameter works as a type for properties, parameters, return types, `T?`, `[T]`, map values `[String: T]` and function types `(T) -> ()`.
+- Values of a type parameter can only be **forwarded**: stored, passed to functions/templates/callbacks, returned, appended to/taken from arrays and maps (e.g. `[T].append`, `pop_last`). Comparing `T?` to `nil` is allowed.
+- **Errors:** member access (`value.name`), `==`/`!=` and comparison-based functions (`contains`), `T` as a map key, string interpolation `"\{value}"`, assigning concrete values (`value: T = 5`), mixing type parameters (returning `First` where `Second` is expected).
+- To act on a value, let the user of the generic type provide the operation as a function or template property.
+- Only classes, components and modifiers can be generic — **not functions or methods**.
+- A generic class cannot store an array of its own type (`children: [TreeNode<T>]` inside `TreeNode<T>`).
+- Overloads that become identical for a type argument (`describe(_ x: T)` + `describe(_ x: Int)` with `T = Int`) make that instantiation an error.
+
+Typical use — a generic list component; the caller supplies the row template and selection callback:
+
+```kscript
+import { VStack, Text, TapGesture } from ui
+
+component List<Item> {
+    @property items: [Item]
+    @property row: Template(Item)
+    @property on_select: (Item) -> () = fun (item) {}
+
+    VStack {
+        for item in self.items {
+            self.row(item) with {
+                TapGesture(fun (event) {
+                    self.on_select(item)
+                })
+            }
+        }
+    }
+}
+
+class Preset {
+    name: String
+}
+
+export var main: Component = List<Preset>(
+    items: [Preset(name: "Warm Pad"), Preset(name: "Bright Lead")],
+    row: template (preset) {
+        Text(preset.name)
+    },
+    on_select: fun (preset) {
+        print("Selected \{preset.name}")
+    }
+)
+```
+
+Generic modifiers work the same way: `modifier Selectable<Value> { @property value: Value … }`, applied as `Selectable<Int>(value: 3, …)`.
+
 ## Declarative Control Flow
 
 Component bodies, modifier bodies, and template bodies support **declarative** `if`/`elseif`/`else` and `for` — they produce components (each expression contributes to the output automatically) rather than executing side effects. NOT available in imperative code (function bodies, class methods).
@@ -1092,3 +1160,4 @@ With a tap and a drag on the same component: a pointer-down triggers the tap's `
 29. **No direct chaining onto a constructor call** — `Color(0xFFFFFFFF).opacity(0.5)` is illegal; write `(Color(0xFFFFFFFF)).opacity(0.5)` or bind to a variable first.
 30. **Member order is enforced.** Classes: properties → constructors → methods. Components/modifiers: properties/bindings → constructors → state/methods → child components last.
 31. **No `var` inside templates or trailing `{ … }` children blocks** — those take component expressions only. Pass values in via template parameters, properties, or state.
+32. **Generic type arguments are never inferred** (kscript 1.10) — write `Box<Int>(value: 5)`, not `Box(value: 5)`; values of a type parameter can only be forwarded.
