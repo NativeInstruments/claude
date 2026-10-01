@@ -43,7 +43,19 @@ var make_item = template (text: String) {
 }
 ```
 
+### Error: `no such parameter with name 'frame'` (Image / NinePatchImage)
+
+Cause: kscript 1.10 replaced `frame`/`frame_count` with `row`/`row_count` (+ `column`/`column_count`) for 2D sprite sheets. Code written for older versions — or a package that wasn't updated — fails once the target language version is 1.10 or newer.
+
+Fix: use `row:`/`row_count:` (a vertical sprite is a single-column sheet). Conversely, `row`/`column` don't exist below 1.10.
+
+### Error: `ambiguous call to method invocation`
+
+Cause: the arguments match several overloads equally well. Since kscript 1.10 the overload needing the fewest implicit conversions wins; a tie (e.g. an `Int` argument for `Float` and `Int?` overloads) is still ambiguous. Fix: pass the exact type (`5.0`), or annotate a variable first.
+
 ## Known Issues
+
+- **Font styles split into different families on Windows.** `Roboto-Regular` and `Roboto-Bold` are family `Roboto`, but `Roboto-Medium` is `Roboto Medium`; loading them in one `load_font` call fails. Workaround: one `load_font` call per weight with its bold/italic variants (see `ui-package.md` → `load_font`).
 
 - **Differently composed UTF-8 characters may not compare equal.** Pre-composed vs decomposed forms look identical but can compare unequal in string comparison. (Several string methods were fixed in kscript 1.0; comparison itself remains a known issue.)
 - **Spacer size incorrect if modifiers are applied to it.** A modifier applied to a `Spacer` in a stack can alter its size unexpectedly. Workaround: avoid applying modifiers directly on `Spacer`.
